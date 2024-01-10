@@ -20,7 +20,7 @@ export type LoginProps = {
 }
 
 export type User = {
-    ids: 6,
+    ids: number,
     nm: string,
     usrnm: string,
 }

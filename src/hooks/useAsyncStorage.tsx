@@ -1,42 +1,35 @@
-import { useState, useEffect } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const useAsyncStorage = (key: string) => {
-    const [storedValue, setStoredValue] = useState();
+  const [storedData, setStoredData] = useState<string | null>(null);
 
-    useEffect(() => {
-        const loadStoredValue = async () => {
-          try {
-            const value = await AsyncStorage.getItem(key);
-            if (value !== null) {
-              setStoredValue(JSON.parse(value));
-            }
-          } catch (error) {
-            console.error('Erreur lors du chargement de la valeur depuis AsyncStorage:', error);
-          }
-        };
-    
-        loadStoredValue();
-      }, [key]);
-
-    
-    const getValue = async () => {
-        try {
-        // Récupération de la valeur actuelle depuis AsyncStorage
-            const value = await AsyncStorage.getItem(key);
-            if (value !== null) {
-                setStoredValue(JSON.parse(value));
-                return JSON.parse(value);
-            }
-            return null;
-        } catch (error) {
-            console.error('Erreur lors de la récupération de la valeur depuis AsyncStorage:', error);
-            return null;
-        }
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const item = await AsyncStorage.getItem(key);
+        const value = item && JSON.parse(item);
+        setStoredData(value);
+      } catch (e) {
+        console.error(e);
+      }
     };
+    getData();
+  }, [key]);
 
+  const setItem = async (value: string | object) => {
+    try {
+      const valueToStore = typeof value === "string" ? value : JSON.stringify(value);
+      await AsyncStorage.setItem(key, valueToStore);
+      setStoredData(valueToStore);
+    } catch (e) {
+      console.error('error store data in asyncStorage', e);
+    }
+  };
 
-    return {storedValue, getValue}
-}
+ 
 
-export default useAsyncStorage
+  return [ storedData, setItem ];
+};
+
+export default useAsyncStorage;

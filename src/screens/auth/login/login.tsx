@@ -1,11 +1,18 @@
 
 import React, {useState} from 'react'
-import { Button, Text, TouchableOpacity, TextInput, View } from 'react-native'
+import { 
+    Button, 
+    Text, 
+    TouchableOpacity, 
+    TextInput, 
+    View, 
+    ActivityIndicator 
+} from 'react-native'
 import {styles} from '../../../styles/index'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
-import { Login } from '../../../redux/new/authActions';
-import { AppDispatch } from '../../../redux/new/store';
+import { Login } from '../../../redux/authActions';
+import { AppDispatch } from '../../../redux/store';
 import { LoginProps, UserLogin } from '../../../@types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -15,40 +22,23 @@ const LoginScreen: React.FC<LoginProps>  = ({ navigation }) => {
         password: ''
     })
 
-
+    const dispatch = useDispatch<AppDispatch>();
+    const {loading, error} = useSelector((state: any) => state.auth)
+   
     const handleChange = (key: string, value: string) => {
-        setUser((prevUser: any) => {
-            // if (prevUser) {
-                return {
-                    ...prevUser,
-                    [key]: value,
-                };
-            // }
-            return prevUser;
-        })
+        setUser((prevUser: UserLogin) => (
+            {
+                ...prevUser,
+                [key]: value,
+            }
+        ))
     }
 
-    const dispatch = useDispatch<AppDispatch>();
-
-    const handleLogin = () => {
+    const handleLogin = async () => {
         dispatch(Login(user))
     }
-
-   async function token() {
-        let toke = await AsyncStorage.getItem('authToken')
-        let use =  await AsyncStorage.getItem('user')
-        console.log('tokkkenenne ', toke);
-        console.log('tokkkenenne ', use);
-   }
-
-   async function del() {
-        await AsyncStorage.clear()
-
-        console.log('delete');
-        
-   }
    
-  return (
+    return (
     <View  style={styles.container}>
         <Text style={styles.textLogin}>CAMTRACK </Text>
         <View style={styles.loginContainer}>
@@ -58,6 +48,7 @@ const LoginScreen: React.FC<LoginProps>  = ({ navigation }) => {
                 onChangeText={(text) => handleChange('username', text)}
                 value={user?.username}
             />
+            { error?.data?.username != null && <Text style={{color: 'red'}}>{error?.data?.username}</Text>} 
             <TextInput 
                 style={styles.border} 
                 secureTextEntry={true} 
@@ -65,18 +56,28 @@ const LoginScreen: React.FC<LoginProps>  = ({ navigation }) => {
                 placeholder="Password"
                 value={user?.password}
             />
+            { error?.data?.password != null && <Text style={{color: 'red'}}>{error?.data?.password}</Text>} 
+            { error?.message !== 'Validation errors' && <Text style={{color: 'red'}}>{error?.message}</Text>}  
+
             <Text 
                 style={styles.txt}
                 onPress={() => navigation.navigate('forgotpassword')}
             > Forgot Password
             </Text>
             <View style={styles.btn}>
-                <Button
-                    // onPress={this._onPressButton}
-                    onPress={handleLogin}
-                    title="Login"
-                    color="#009387"
-                />
+                {
+                    !loading ? (
+                        <Button
+                        // onPress={this._onPressButton}
+                        onPress={handleLogin}
+                        title='login'
+                        color="#009387"
+                    />
+                    ) : (
+                        <ActivityIndicator size="large" color="#009387" />
+                    )
+                }
+               
             </View>
             <View style={styles.socialMedia}>
                 <Icon
@@ -111,13 +112,6 @@ const LoginScreen: React.FC<LoginProps>  = ({ navigation }) => {
                     onPress={() => navigation.navigate('register')}
                 > Register now  {user?.username}  {user?.password}</Text>
             </Text>
-            <TouchableOpacity onPress={token}>
-                <Text>Press Here</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={del}>
-                <Text>Delete</Text>
-            </TouchableOpacity>
         </View>
     </View>
   )

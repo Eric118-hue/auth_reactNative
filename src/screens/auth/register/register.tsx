@@ -22,7 +22,7 @@ const Register: React.FC<any> = ({ navigation }) => {
         <Text>Have an account? 
                 <Text 
                     style={styles.txt}
-                    onPress={() => navigation.navigate('login')}
+                    onPress={() => navigation.navigate('Login')}
                 > Login </Text>
       </Text>
       </View>
