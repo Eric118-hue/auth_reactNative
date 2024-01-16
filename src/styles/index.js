@@ -48,6 +48,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 12,
         justifyContent: 'center'
-    }
+    },
+   
  
 })
